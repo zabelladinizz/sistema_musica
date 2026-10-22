@@ -95,6 +95,80 @@ app.get("/albuns/:id", (req, res) => {
     })
 });
 
+
+app.get("/artistas/:id/musicas", (req, res) => {
+
+    const id = Number(req.params.id);
+
+    const sql = `
+        SELECT musicas.*
+        FROM musicas
+        INNER JOIN albuns ON musicas.album_id = albuns.id
+        WHERE albuns.artista_id = ?
+    `;
+
+    conexao.query(sql, [id], (erro, resultados) => {
+
+        if (erro) {
+            return res.status(500).json({
+                erro: "Erro ao listar músicas do artista."
+            });
+        }
+
+        res.status(200).json(resultados);
+    });
+});
+
+
+app.get("/artistas/:id/albuns", (req, res) => {
+    const id = Number(req.params.id);
+
+    const sql = `
+        SELECT albuns.*
+        FROM albuns
+        INNER JOIN artistas ON albuns.artista_id = artistas.id
+        WHERE artistas.id = ?
+    `;
+
+    conexao.query(sql, [id], (erro, resultados) => {
+        if (erro) {
+            return res.status(500).json({
+                erro: "Erro ao listar álbuns do artista."
+            });
+        }
+
+        res.status(200).json(resultados);
+    });
+});
+
+
+app.get("/musicas-completas", (req, res) => {
+
+    const sql = `
+        SELECT
+            musicas.id AS musica_id,
+            musicas.titulo AS musica,
+            musicas.duracao,
+            albuns.titulo AS album,
+            albuns.ano_lancamento,
+            artistas.nome AS artista
+        FROM musicas
+        INNER JOIN albuns ON musicas.album_id = albuns.id
+        INNER JOIN artistas ON albuns.artista_id = artistas.id
+    `;
+
+    conexao.query(sql, (erro, resultados) => {
+        if (erro) {
+            return res.status(500).json({
+                erro: "Erro ao listar músicas completas."
+            });
+        }
+
+        res.status(200).json(resultados);
+    });
+});
+
+
 //POSTS
 
 app.post("/artistas", (req, res) => {
